@@ -1,0 +1,75 @@
+import cv2
+import numpy as np
+
+# open camera and read
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("Camera not opened")
+    exit()
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # 1. create HSV
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # 2. defining the blue color of the tape.
+    lower_blue = np.array([90, 50, 50])
+    upper_blue = np.array([130, 255, 255])
+
+    # 3. thresholds to show the blue parts（白 = 蓝色区域）
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    # 4. edge detection
+    edges = cv2.Canny(mask, 50, 150)
+
+    # 5. Hough line detection (~P is better for curves)
+    lines = cv2.HoughLinesP(
+        edges,
+        1,
+        np.pi / 180,
+        50,
+        minLineLength=40,
+        maxLineGap=10
+    )
+
+    left_x = []
+    right_x = []
+
+    height, width = frame.shape[:2]
+    center_x = width // 2
+
+    # 6. left+ right
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+
+            # draw out the lines in yellow color
+            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
+
+            mid_x = (x1 + x2) // 2
+
+            if mid_x < center_x:
+                left_x.append(mid_x)
+            else:
+                right_x.append(mid_x)
+
+    # 7. draw centerline
+    if left_x and right_x:
+        left_avg = int(sum(left_x) / len(left_x))
+        right_avg = int(sum(right_x) / len(right_x))
+        mid = (left_avg + right_avg) // 2
+
+        cv2.line(frame, (mid, 0), (mid, height), (0, 255, 0), 3)
+
+    # show result
+    cv2.imshow("Lane Detection", frame)
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
