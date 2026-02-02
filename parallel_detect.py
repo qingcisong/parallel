@@ -18,7 +18,7 @@ while True:
     roi = frame[h//2:h, :]
 
     # 2. HSV for blue detection
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     lower_blue = np.array([90, 60, 60])
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
