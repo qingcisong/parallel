@@ -70,10 +70,25 @@ def processed_gen():
             time.sleep(0.01)
             continue
 
-        blurred = cv2.GaussianBlur(frame, (5, 5), 30)
-        edges = cv2.Canny(blurred, 70, 180)
-
-        ok, buf = cv2.imencode(".jpg", edges)
+        
+        # grayscale
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # blur
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)
+        # edges
+        edges = cv2.Canny(gray, 60, 180)
+        # make tape edges thicker
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        edges = cv2.dilate(edges, kernel, iterations=1)
+        # Hough line segments
+        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 80,
+                                minLineLength=80, maxLineGap=20)
+        # draw on original frame
+        out = frame.copy()
+        if lines is not None:
+            for x1, y1, x2, y2 in lines[:, 0]:
+                cv2.line(out, (x1, y1), (x2, y2), (0, 255, 0), 3)
+        ok, buf = cv2.imencode(".jpg", out)
         if not ok:
             continue
 
