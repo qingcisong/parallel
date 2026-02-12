@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      border: 1px solid black;
+      width: 800px;
+      height: 200px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .controls-table button {
+      width: 70px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<table>
+  <tr>
+    <Top-left cell>
+    <td style= "height: 200px">
+        <img src="http://127.0.0.1:5000/stream" width="800" height="500" />
+    </td>
+
+    <Top-right cell with control buttons>
+    <td>
+      <table class="controls-table">
+        <tr>
+          <td></td>
+          <td style= "height: 50px;"><button>Forward</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td style= "height: 100px;"><button>Left</button></td>
+          <td style= "height: 100px;"><button>Stop</button></td>
+          <td style= "height: 100px;"><button>Right</button></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style= "height: 50px;"><button>Backward</button></td>
+          <td></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <Second row>
+  <tr>
+    <td style= "height: 400px;">
+        <img src="http://127.0.0.1:5000/stream_processed" width="800" height="600" />
+    </td>
+    <td style= "height: 400px;">
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
