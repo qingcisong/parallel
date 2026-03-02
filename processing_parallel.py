@@ -2,6 +2,16 @@ import cv2
 import numpy as np
 
 def process_frame(frame):
+    #hsv
+    hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)  
+    h = hsv_img[:,:,0]
+    s = hsv_img[:,:,1]
+    v = hsv_img[:,:,2]
+    s_change = 1.6
+    new_s = cv2.multiply(s, s_change)
+    new_hsv = cv2.merge([h, new_s, v])
+    hsv_image = cv2.cvtColor(new_hsv, cv2.COLOR_HSV2BGR)
+
     # grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -12,6 +22,22 @@ def process_frame(frame):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 17))
     edges = cv2.dilate(gray, kernel, iterations=1)
 
+    # ROI
+    h, w = frame.shape[:2]
+
+    roi_pts = np.array([[
+        (int(0.22*w), int(0.52*h)),
+        (int(0.78*w), int(0.52*h)),
+        (int(0.98*w), int(0.98*h)),
+        (int(0.02*w), int(0.98*h)),
+    ]], dtype=np.int32)  
+
+    mask = np.zeros((h, w), dtype=np.uint8)
+    cv2.fillPoly(mask, roi_pts, 255)
+
+    roi = cv2.bitwise_and(gray, gray, mask=mask)
+
+    
     #threshold
     binary = cv2.adaptiveThreshold(
         edges,
