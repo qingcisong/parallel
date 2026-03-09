@@ -71,7 +71,7 @@ def processed_gen():
         if frame is None:   
             continue
         
-        out = process_frame(frame)
+        out, error = process_frame(frame)
         
         ok, buf = cv2.imencode(".jpg", out)
         if not ok:
