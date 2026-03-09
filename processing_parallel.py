@@ -3,7 +3,6 @@ import numpy as np
 
 def process_frame(frame):
 
-    # preprocessing 
     hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     h = hsv_img[:,:,0]
     s = hsv_img[:,:,1]
@@ -34,7 +33,6 @@ def process_frame(frame):
 
     edges = cv2.Canny(binary,100,200)
 
-    #  ROI 
     h, w = frame.shape[:2]
 
     roi_pts = np.array([[
@@ -49,7 +47,6 @@ def process_frame(frame):
 
     roi = cv2.bitwise_and(edges,edges,mask=mask)
 
-    #  Hough line detection 
     lines = cv2.HoughLinesP(
         roi,
         1,
@@ -76,19 +73,14 @@ def process_frame(frame):
 
             slope = dy/dx
 
-            # ignore horizontal noise
             if abs(slope) < 0.5:
                 continue
 
-            # left lane
             if slope < 0:
                 left_lines.append((x1,y1,x2,y2))
-
-            # right lane
             else:
                 right_lines.append((x1,y1,x2,y2))
 
-    # average lanes 
     def average_line(lines):
 
         if len(lines) == 0:
@@ -114,22 +106,32 @@ def process_frame(frame):
     left = average_line(left_lines)
     right = average_line(right_lines)
 
-    #  draw left/right 
     if left is not None:
         cv2.line(out,(left[0],left[1]),(left[2],left[3]),(0,255,0),4)
 
     if right is not None:
         cv2.line(out,(right[0],right[1]),(right[2],right[3]),(0,255,0),4)
 
-    #  center line 
+    error = None
+
+    frame_center_x = w // 2
+    cv2.line(out, (frame_center_x, h), (frame_center_x, int(h*0.5)), (0,0,255), 2)
+
     if left is not None and right is not None:
 
-        cx1 = int((left[0]+right[0])/2)
-        cy1 = int((left[1]+right[1])/2)
+        cx1 = int((left[0] + right[0]) / 2)
+        cy1 = int((left[1] + right[1]) / 2)
 
-        cx2 = int((left[2]+right[2])/2)
-        cy2 = int((left[3]+right[3])/2)
+        cx2 = int((left[2] + right[2]) / 2)
+        cy2 = int((left[3] + right[3]) / 2)
 
+        #blue center line
         cv2.line(out,(cx1,cy1),(cx2,cy2),(255,0,0),4)
 
-    return out
+        #bottom point of the center line as the center
+        lane_center_x = cx1
+
+        #positive = right of the center, negative= left of the center
+        error = lane_center_x - frame_center_x
+
+    return out, error
