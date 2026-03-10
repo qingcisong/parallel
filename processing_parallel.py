@@ -112,9 +112,8 @@ def process_frame(frame):
     if right is not None:
         cv2.line(out,(right[0],right[1]),(right[2],right[3]),(0,255,0),4)
 
-    error = None
+    steering_value = 0
 
-    frame_center_x = w // 2
     cv2.line(out, (frame_center_x, h), (frame_center_x, int(h*0.5)), (0,0,255), 2)
 
     if left is not None and right is not None:
@@ -132,6 +131,6 @@ def process_frame(frame):
         lane_center_x = cx1
 
         #positive = right of the center, negative= left of the center
-        error = lane_center_x - frame_center_x
+        steering_value = lane_center_x - frame_center_x
 
-    return out, error
+    return out, steering_value
